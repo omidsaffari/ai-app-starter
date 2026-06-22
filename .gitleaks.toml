@@ -1,0 +1,12 @@
+title = "ai-app-starter secret scan"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholder/sentinel values in template + test files (not real secrets)"
+paths = [
+	'''\.env\.example''',
+	'''tests/.*\.spec\.ts''',
+	'''README\.md''',
+]
