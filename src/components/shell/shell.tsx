@@ -76,9 +76,9 @@ export function Shell({ panel, children }: { panel?: ReactNode; children: ReactN
 						<BrandMark className="size-5" />
 						<span className="text-sm font-medium">{project.name}</span>
 					</SheetTrigger>
-					<SheetContent side="left" className="w-[320px] p-0">
-						<SheetTitle className="px-4 pt-4">{project.name}</SheetTitle>
-						<div className="flex-1 overflow-y-auto px-1 pb-4">{panel ?? null}</div>
+					<SheetContent side="left" className="w-[360px] max-w-[90vw] p-0">
+						<SheetTitle className="px-5 pt-4">{project.name}</SheetTitle>
+						<div className="flex-1 overflow-y-auto px-3 pb-4">{panel ?? null}</div>
 					</SheetContent>
 				</Sheet>
 			</div>

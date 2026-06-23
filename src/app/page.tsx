@@ -1,7 +1,11 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { Add01Icon, ArtificialIntelligence03Icon } from "@hugeicons/core-free-icons";
+import {
+	Add01Icon,
+	ArrowDown01Icon,
+	ArtificialIntelligence03Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { DefaultChatTransport } from "ai";
 import { useMemo, useRef, useState } from "react";
@@ -16,6 +20,7 @@ import { KeyGate } from "@/components/key-gate";
 import { Panel, PanelGuide } from "@/components/panels/shared";
 import { Shell } from "@/components/shell/shell";
 import { Button } from "@/components/ui/button";
+import { useScrollToBottom } from "@/hooks/use-scroll-to-bottom";
 import { PROVIDER_KEY_HEADER, readKey, useByokKey } from "@/lib/byok";
 import { DEFAULT_MODEL_ID, providerOf } from "@/lib/models";
 
@@ -61,6 +66,7 @@ export default function Home() {
 
 	const { messages, sendMessage, setMessages, status, stop, error } = useChat({ transport });
 	const isLoading = status === "submitted" || status === "streaming";
+	const { containerRef, endRef, isAtBottom, scrollToBottom } = useScrollToBottom();
 
 	const handleSubmit = () => {
 		const text = input.trim();
@@ -91,7 +97,14 @@ export default function Home() {
 						/>
 					}
 					banner={
-						<div className="flex flex-col gap-2.5">
+						<div className="flex flex-col gap-5">
+							<KeyGate
+								provider={provider}
+								value={key}
+								hasKey={hasKey}
+								onSet={setKey}
+								onClear={clear}
+							/>
 							{messages.length > 0 && (
 								<Button
 									className="w-full shadow-[0_2px_20px_-4px_rgb(0_0_0/0.08),0_0_40px_-8px_rgb(0_0_0/0.04)]"
@@ -102,78 +115,93 @@ export default function Home() {
 									New chat
 								</Button>
 							)}
-							<KeyGate
-								provider={provider}
-								value={key}
-								hasKey={hasKey}
-								onSet={setKey}
-								onClear={clear}
-							/>
 						</div>
 					}
 				/>
 			}
 		>
 			<div data-testid="chat-surface" className="relative flex h-svh flex-col">
-				{/* New — mobile only (desktop has it in the panel); secondary, top-right */}
+				{/* Mobile top scrim — a gradient mask so the floating logo + New sit over a clean strip */}
+				<div className="from-background via-background pointer-events-none absolute inset-x-0 top-0 z-10 h-20 bg-gradient-to-b to-transparent lg:hidden" />
+
+				{/* New — mobile only (desktop has it in the panel); glass style, top-right */}
 				{messages.length > 0 && (
-					<div className="absolute right-3 top-3 z-20 lg:hidden">
-						<Button
-							variant="secondary"
-							size="sm"
-							onClick={handleNew}
-							data-testid="chat-new-mobile"
-							aria-label="New conversation"
-						>
-							<HugeiconsIcon icon={Add01Icon} size={14} data-icon="inline-start" />
-							New
-						</Button>
-					</div>
+					<button
+						type="button"
+						onClick={handleNew}
+						data-testid="chat-new-mobile"
+						aria-label="New conversation"
+						className="bg-background/70 text-foreground hover:bg-muted/50 absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium backdrop-blur transition-colors lg:hidden"
+					>
+						<HugeiconsIcon icon={Add01Icon} size={14} />
+						New
+					</button>
 				)}
 
 				{/* Conversation */}
-				<div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-					<div className="mx-auto flex min-h-full w-full max-w-3xl flex-col gap-8 px-4 pt-12 pb-4 lg:pt-6">
-						{messages.length === 0 ? (
-							<EmptyState
-								icon={ArtificialIntelligence03Icon}
-								title="Ask anything"
-								subtitle={
-									hasKey
-										? "Chat with text, or ask for an image."
-										: "Set your key in the panel to begin."
-								}
-							/>
-						) : (
-							messages.map((message, index) =>
-								message.role === "user" ? (
-									<UserMessage key={message.id} message={message} />
-								) : (
-									<AssistantMessage
-										key={message.id}
-										message={message}
-										isStreaming={status === "streaming" && index === messages.length - 1}
-									/>
-								),
-							)
-						)}
+				<div className="relative flex-1">
+					<div
+						ref={containerRef}
+						className="absolute inset-0 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+					>
+						<div className="mx-auto flex min-h-full w-full max-w-3xl flex-col gap-8 px-4 pt-20 pb-6 lg:pt-8">
+							{messages.length === 0 ? (
+								<EmptyState
+									icon={ArtificialIntelligence03Icon}
+									title="Ask anything"
+									subtitle={
+										hasKey
+											? "Chat with text, or ask for an image."
+											: "Set your key in the panel to begin."
+									}
+								/>
+							) : (
+								messages.map((message, index) =>
+									message.role === "user" ? (
+										<UserMessage key={message.id} message={message} />
+									) : (
+										<AssistantMessage
+											key={message.id}
+											message={message}
+											isStreaming={status === "streaming" && index === messages.length - 1}
+										/>
+									),
+								)
+							)}
 
-						{status === "submitted" && (
-							<div className="text-muted-foreground/50 flex items-center gap-2 text-[13px]">
-								<span className="size-1.5 animate-pulse rounded-full bg-current" />
-								Working…
-							</div>
-						)}
+							{status === "submitted" && (
+								<div className="text-muted-foreground/50 flex items-center gap-2 text-[13px]">
+									<span className="size-1.5 animate-pulse rounded-full bg-current" />
+									Working…
+								</div>
+							)}
 
-						{error && (
-							<div
-								data-testid="chat-error"
-								className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-500"
-							>
-								{error.message}
-							</div>
-						)}
+							{error && (
+								<div
+									data-testid="chat-error"
+									className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-500"
+								>
+									{error.message}
+								</div>
+							)}
+
+							<div ref={endRef} className="h-px shrink-0" />
+						</div>
 					</div>
+
+					{/* Scroll to bottom — appears when you scroll up, floats above the composer */}
+					{messages.length > 0 && (
+						<button
+							type="button"
+							aria-label="Scroll to bottom"
+							onClick={() => scrollToBottom("smooth")}
+							className={`bg-background hover:bg-muted border-border absolute bottom-4 left-1/2 z-10 flex size-9 -translate-x-1/2 items-center justify-center rounded-full border shadow-lg transition-all ${
+								isAtBottom ? "pointer-events-none scale-0 opacity-0" : "scale-100 opacity-100"
+							}`}
+						>
+							<HugeiconsIcon icon={ArrowDown01Icon} size={16} />
+						</button>
+					)}
 				</div>
 
 				{/* Composer */}
