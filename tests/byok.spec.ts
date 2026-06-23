@@ -59,8 +59,9 @@ test("BYOK key never leaks; the key only rides x-provider-key same-origin; outpu
 	await page.getByTestId("byok-input").fill(SENTINEL);
 	await page.getByTestId("byok-set").click();
 
-	// It lands in sessionStorage only — not localStorage, not cookies.
-	const session = await page.evaluate(() => window.sessionStorage.getItem("byok:key"));
+	// It lands in sessionStorage only — under the selected provider's slot
+	// (the default model is OpenAI) — not localStorage, not cookies.
+	const session = await page.evaluate(() => window.sessionStorage.getItem("byok:key:openai"));
 	const local = await page.evaluate(() => JSON.stringify(window.localStorage));
 	const cookies = await page.evaluate(() => document.cookie);
 	expect(session).toBe(SENTINEL);

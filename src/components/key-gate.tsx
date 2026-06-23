@@ -2,69 +2,93 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { project } from "@/lib/project";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { Provider } from "@/lib/models";
+import { PROVIDER_COPY } from "@/lib/project";
 
 /**
- * The BYOK key input. The key is masked (type=password), never rendered back as
- * text, and once set only its length is shown. Storage + transport live in
- * `lib/byok.ts`; this component is presentation only. Stable `data-testid`
- * hooks (`byok-input`, `byok-set`, `byok-clear`) anchor the no-leak test.
+ * The BYOK key input — a quiet inline form that belongs to the panel, not a
+ * stuck-on card. Provider-aware: the label + placeholder follow the currently
+ * selected model's provider, and the key is stored under that provider's slot.
+ *
+ * The key is masked (type=password), never rendered back as text, and once set
+ * only its length is shown. Storage + transport live in `lib/byok.ts`; this is
+ * presentation only. Stable `data-testid` hooks (`byok-input`, `byok-set`,
+ * `byok-clear`) anchor the no-leak test — do not rename them.
  */
 export function KeyGate({
+	provider,
 	value,
 	hasKey,
 	onSet,
 	onClear,
 }: {
+	provider: Provider;
 	value: string;
 	hasKey: boolean;
 	onSet: (k: string) => void;
 	onClear: () => void;
 }) {
 	const [draft, setDraft] = useState("");
+	const copy = PROVIDER_COPY[provider];
 
 	if (hasKey) {
 		return (
-			<div className="border-border bg-card flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm">
-				<span className="text-muted-foreground" data-testid="byok-status">
-					Key set for this session · {value.length} chars · masked
+			<div className="flex items-center justify-between gap-2 py-0.5 text-[13px]">
+				<span
+					className="text-muted-foreground inline-flex items-center gap-2"
+					data-testid="byok-status"
+				>
+					<span className="bg-emerald-500 size-1.5 shrink-0 rounded-full" aria-hidden="true" />
+					Key set · {value.length} chars · masked
 				</span>
-				<Button variant="ghost" size="sm" onClick={onClear} data-testid="byok-clear">
+				<button
+					type="button"
+					onClick={onClear}
+					data-testid="byok-clear"
+					className="text-muted-foreground/70 hover:text-foreground shrink-0 text-xs underline-offset-4 transition-colors hover:underline"
+				>
 					Clear
-				</Button>
+				</button>
 			</div>
 		);
 	}
 
+	const submit = () => {
+		const trimmed = draft.trim();
+		if (trimmed) onSet(trimmed);
+		setDraft("");
+	};
+
 	return (
-		<div className="border-border bg-card rounded-xl border p-4">
-			<label className="text-muted-foreground block text-sm" htmlFor="byok">
-				{project.provider.label}
-			</label>
-			<div className="mt-2 flex gap-2">
-				<input
+		<Field>
+			<Label htmlFor="byok">{copy.label}</Label>
+			<div className="flex gap-2">
+				<Input
 					id="byok"
 					data-testid="byok-input"
 					type="password"
 					autoComplete="off"
 					aria-label="API key"
-					className="border-border bg-background text-foreground focus:border-ring min-w-0 flex-1 rounded-lg border p-2 outline-none"
-					placeholder={project.provider.placeholder}
+					placeholder={copy.placeholder}
 					value={draft}
 					onChange={(e) => setDraft(e.target.value)}
-				/>
-				<Button
-					data-testid="byok-set"
-					disabled={!draft.trim()}
-					onClick={() => {
-						if (draft.trim()) onSet(draft.trim());
-						setDraft("");
+					onKeyDown={(e) => {
+						if (e.key === "Enter") {
+							e.preventDefault();
+							submit();
+						}
 					}}
-				>
+				/>
+				<Button data-testid="byok-set" size="lg" disabled={!draft.trim()} onClick={submit}>
 					Set
 				</Button>
 			</div>
-			<p className="text-muted-foreground/70 mt-2 text-xs">{project.provider.help}</p>
-		</div>
+			<p className="text-muted-foreground/70 text-xs leading-relaxed">
+				Used only for this request — never stored or logged. Stays in this browser session.
+			</p>
+		</Field>
 	);
 }

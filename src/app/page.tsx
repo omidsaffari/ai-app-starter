@@ -3,34 +3,51 @@
 import { useChat } from "@ai-sdk/react";
 import { ArtificialIntelligence03Icon } from "@hugeicons/core-free-icons";
 import { DefaultChatTransport } from "ai";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AssistantMessage, ChatInput, EmptyState, UserMessage } from "@/components/ai";
 import { KeyGate } from "@/components/key-gate";
 import { Shell } from "@/components/shell/shell";
 import { PROVIDER_KEY_HEADER, readKey, useByokKey } from "@/lib/byok";
+import { DEFAULT_MODEL_ID, providerOf } from "@/lib/models";
 import { project } from "@/lib/project";
 
 /**
  * Default demo — the shell hosting a working BYOK chat + image conversation.
  * Key-gate lives in the panel; the conversation + composer own the main column.
- * `useChat` streams over a transport that attaches the sessionStorage key as the
- * `x-provider-key` header on each same-origin request to `/api/run`. The key is
- * read fresh per request (never closed over), so clearing it takes effect at once.
  *
- * To build the next demo: swap the model call in `src/lib/capability.ts` and the
- * copy in `src/lib/project.ts`. The shell + BYOK core stay untouched.
+ * The visitor picks a model (any provider in `lib/models.ts`); the key-gate is
+ * scoped to that model's provider, and `useChat` streams over a transport that
+ * attaches the matching sessionStorage key as the `x-provider-key` header plus
+ * the selected `modelId` in the body, fresh per request (never closed over), so
+ * switching models or clearing the key takes effect at once.
+ *
+ * To build the next demo: edit `src/lib/models.ts` (which models) +
+ * `src/lib/capability.ts` (the model call) + `src/lib/project.ts` (copy). The
+ * shell + BYOK core stay untouched.
  */
 export default function Home() {
-	const { key, setKey, clear, hasKey } = useByokKey();
+	// Task 3 swaps this for `useState(DEFAULT_MODEL_ID)` + the model selector.
+	const modelId = DEFAULT_MODEL_ID;
+	const provider = providerOf(modelId);
+	const { key, setKey, clear, hasKey } = useByokKey(provider);
 	const [input, setInput] = useState("");
 
-	// Transport: same-origin `/api/run`, key pulled fresh from sessionStorage
-	// per request via the resolvable headers function.
+	// Keep the latest provider/model for the transport, which reads them fresh
+	// per request (never closes over stale values).
+	const providerRef = useRef(provider);
+	providerRef.current = provider;
+	const modelRef = useRef(modelId);
+	modelRef.current = modelId;
+
+	// Transport: same-origin `/api/run`. The header carries the selected
+	// provider's key (pulled fresh from sessionStorage); the body carries the
+	// selected modelId so the route builds the right provider client.
 	const transport = useMemo(
 		() =>
 			new DefaultChatTransport({
 				api: "/api/run",
-				headers: () => ({ [PROVIDER_KEY_HEADER]: readKey() }),
+				headers: () => ({ [PROVIDER_KEY_HEADER]: readKey(providerRef.current) }),
+				body: () => ({ modelId: modelRef.current }),
 			}),
 		[],
 	);
@@ -48,14 +65,14 @@ export default function Home() {
 	return (
 		<Shell
 			panel={
-				<div className="space-y-4">
+				<div className="space-y-5">
 					<div>
 						<p className="text-foreground text-sm font-medium">{project.name}</p>
 						<p className="text-muted-foreground mt-1 text-[13px] leading-relaxed">
 							{project.tagline}
 						</p>
 					</div>
-					<KeyGate value={key} hasKey={hasKey} onSet={setKey} onClear={clear} />
+					<KeyGate provider={provider} value={key} hasKey={hasKey} onSet={setKey} onClear={clear} />
 				</div>
 			}
 		>
