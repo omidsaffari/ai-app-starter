@@ -1,10 +1,15 @@
-# {{PROJECT_NAME}}
+# AI App Starter
 
-> {{ONE_LINE_TAGLINE}}
+> A bring-your-own-key chat + image demo — paste your own API key; it never leaves your session.
 
-**Live demo:** {{DEMO_URL}} · **Built by** [Omid Saffari](https://github.com/omidsaffari)
+**Live demo:** _(set per deploy)_ · **Built by** [Omid Saffari](https://github.com/omidsaffari)
 
-{{WHAT_IT_IS — 2-3 sentences: the problem, who it's for, what makes it interesting.}}
+The Omid Saffari Labs golden template: a provider-agnostic BYOK Next.js app with a
+shadcn design system, a simplified dashboard shell, and an AI component kit. Out of
+the box it's a single conversation surface that streams markdown text **and**
+renders in-conversation images on your own OpenAI key. It's the foundation every
+future Labs demo clones — swap one model-call file and the copy, keep the shell +
+BYOK core untouched.
 
 ## Bring your own key
 
@@ -15,10 +20,15 @@ key of the author's is involved — you pay only for your own usage.
 
 ## Architecture
 
-- **Next.js (App Router)** on Vercel.
+- **Next.js (App Router)** on Vercel; **Tailwind v4** + shadcn (Base UI) + HugeIcons.
 - BYOK key handling in `src/lib/byok.ts` + `src/lib/secret.ts` (the trust boundary).
-- The model call lives in `src/lib/capability.ts` — {{PROVIDER}} ({{MODEL}}), streamed.
-- `src/app/api/run/route.ts` proxies the key per-request so it never sits in the browser bundle.
+- The model call lives in `src/lib/capability.ts` — OpenAI Responses + the hosted
+  image-generation tool, via the **AI SDK v6** (`streamText`), streamed.
+- `src/app/api/run/route.ts` is the BYOK proxy: it reads the `x-provider-key`
+  header, builds the provider client with that key, and streams a UI-message
+  response. The key never sits in the browser bundle or any log.
+- The shell + AI kit live in `src/components/{shell,ai,ui}/`. See `AGENTS.md` for
+  the editable-vs-frozen map and the full kitchen inventory.
 
 ## Run locally
 
