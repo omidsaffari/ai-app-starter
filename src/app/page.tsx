@@ -13,6 +13,7 @@ import {
 	UserMessage,
 } from "@/components/ai";
 import { KeyGate } from "@/components/key-gate";
+import { PanelGuide } from "@/components/shell/panel-guide";
 import { Shell } from "@/components/shell/shell";
 import { Button } from "@/components/ui/button";
 import { PROVIDER_KEY_HEADER, readKey, useByokKey } from "@/lib/byok";
@@ -86,6 +87,13 @@ export default function Home() {
 							{project.tagline}
 						</p>
 					</div>
+					<PanelGuide
+						steps={[
+							"Paste your provider key — it stays in your browser and is only sent to the model.",
+							"Pick a model, then describe what you want.",
+							"Get your result — streamed text or an image, right here.",
+						]}
+					/>
 					<KeyGate provider={provider} value={key} hasKey={hasKey} onSet={setKey} onClear={clear} />
 				</div>
 			}
