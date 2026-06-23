@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { redactSecret } from "./secret";
 
 /**
  * BYOK key handling — the trust boundary. Frozen: do not weaken or relocate.
@@ -12,6 +11,9 @@ import { redactSecret } from "./secret";
  * server environment, or any log/analytics sink.
  */
 const STORAGE_KEY = "byok:key";
+
+/** The header the BYOK key rides in, on same-origin requests to `/api/run` only. */
+export const PROVIDER_KEY_HEADER = "x-provider-key";
 
 export function readKey(): string {
 	if (typeof window === "undefined") return "";
@@ -59,38 +61,4 @@ export function useByokKey(): {
 		setKeyState("");
 	}, []);
 	return { key, setKey, clear, hasKey: key.trim().length > 0 };
-}
-
-/**
- * streamPrompt — POST the prompt to the BYOK route with the key in a header and
- * yield streamed text chunks. The key is sent per-request only; errors are
- * redacted so the key never surfaces in the UI.
- */
-export async function* streamPrompt(
-	prompt: string,
-	key: string,
-	signal?: AbortSignal,
-): AsyncGenerator<string> {
-	let res: Response;
-	try {
-		res = await fetch("/api/run", {
-			method: "POST",
-			headers: { "content-type": "application/json", "x-provider-key": key },
-			body: JSON.stringify({ prompt }),
-			signal,
-		});
-	} catch (err) {
-		throw new Error(redactSecret(err instanceof Error ? err.message : String(err), key));
-	}
-	if (!res.ok || !res.body) {
-		const detail = await res.text().catch(() => "");
-		throw new Error(redactSecret(detail || `Request failed (${res.status})`, key));
-	}
-	const reader = res.body.getReader();
-	const decoder = new TextDecoder();
-	while (true) {
-		const { done, value } = await reader.read();
-		if (done) break;
-		yield decoder.decode(value, { stream: true });
-	}
 }

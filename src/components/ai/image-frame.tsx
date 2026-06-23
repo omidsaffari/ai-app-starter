@@ -69,11 +69,7 @@ export function ImageFrame({
 
 				{!src && !errored && !isStreaming && (
 					<div className="absolute inset-0 flex items-center justify-center">
-						<HugeiconsIcon
-							icon={Image02Icon}
-							size={20}
-							className="text-muted-foreground/40"
-						/>
+						<HugeiconsIcon icon={Image02Icon} size={20} className="text-muted-foreground/40" />
 					</div>
 				)}
 

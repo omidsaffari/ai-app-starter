@@ -66,9 +66,7 @@ export function Shell({ panel, children }: { panel?: ReactNode; children: ReactN
 			{/* Mobile: hamburger Sheet holding the panel */}
 			<div className="absolute left-3 top-3 z-30 lg:hidden">
 				<Sheet>
-					<SheetTrigger
-						render={<Button variant="outline" size="icon-sm" aria-label="Open menu" />}
-					>
+					<SheetTrigger render={<Button variant="outline" size="icon-sm" aria-label="Open menu" />}>
 						<HugeiconsIcon icon={Menu01Icon} size={16} />
 					</SheetTrigger>
 					<SheetContent side="left" className="w-[320px] p-0">

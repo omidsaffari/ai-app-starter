@@ -1,10 +1,14 @@
-import { runCapability } from "@/lib/capability";
+import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import { buildCapability } from "@/lib/capability";
 import { redactSecret } from "@/lib/secret";
 
-// The BYOK proxy. The browser cannot call most providers directly (CORS +
-// key exposure), so the key rides in per-request, is used here, and is never
-// persisted or logged. Frozen contract — see AGENTS.md.
+// The BYOK proxy. The browser can't call most providers directly (CORS + key
+// exposure), so the key rides in per-request via `x-provider-key`, is used here
+// to build the provider client, and is never persisted or logged. The route
+// streams an AI-SDK UI-message response (text → markdown, image tool → file
+// parts rendered in-column). Frozen contract — see AGENTS.md.
 export const runtime = "nodejs";
+export const maxDuration = 300;
 
 export async function POST(req: Request): Promise<Response> {
 	const apiKey = req.headers.get("x-provider-key")?.trim() ?? "";
@@ -12,35 +16,30 @@ export async function POST(req: Request): Promise<Response> {
 		return new Response("Missing API key. Paste your key to run the demo.", { status: 401 });
 	}
 
-	let prompt = "";
+	let messages: UIMessage[];
 	try {
-		const body = (await req.json()) as { prompt?: unknown };
-		prompt = typeof body.prompt === "string" ? body.prompt : "";
+		const body = (await req.json()) as { messages?: unknown };
+		if (!Array.isArray(body.messages)) {
+			return new Response("Invalid request body.", { status: 400 });
+		}
+		messages = body.messages as UIMessage[];
 	} catch {
 		return new Response("Invalid request body.", { status: 400 });
 	}
-	if (!prompt.trim()) {
-		return new Response("Empty prompt.", { status: 400 });
-	}
 
-	const encoder = new TextEncoder();
-	const stream = new ReadableStream<Uint8Array>({
-		async start(controller) {
-			try {
-				for await (const chunk of runCapability({ apiKey, prompt, signal: req.signal })) {
-					controller.enqueue(encoder.encode(chunk));
-				}
-			} catch (err) {
-				// The key must never appear in an error returned to the client or logged.
-				const message = redactSecret(err instanceof Error ? err.message : String(err), apiKey);
-				controller.enqueue(encoder.encode(`\n[error] ${message}`));
-			} finally {
-				controller.close();
-			}
-		},
+	const { model, system, tools } = buildCapability({ apiKey, messages });
+
+	const result = streamText({
+		model,
+		system,
+		tools,
+		messages: await convertToModelMessages(messages),
+		abortSignal: req.signal,
 	});
 
-	return new Response(stream, {
-		headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
+	// The key must never surface in an error returned to the client or logged.
+	return result.toUIMessageStreamResponse({
+		onError: (error) =>
+			redactSecret(error instanceof Error ? error.message : String(error), apiKey),
 	});
 }

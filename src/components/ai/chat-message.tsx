@@ -80,9 +80,7 @@ export function AssistantMessage({
 					}
 
 					if (isFileUIPart(part) && part.mediaType?.startsWith("image/")) {
-						return (
-							<ImageFrame key={key} src={part.url} isStreaming={isStreaming} />
-						);
+						return <ImageFrame key={key} src={part.url} isStreaming={isStreaming} />;
 					}
 
 					return null;

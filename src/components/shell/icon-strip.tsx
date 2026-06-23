@@ -62,9 +62,10 @@ export function IconStrip({ open, onToggle }: { open: boolean; onToggle: () => v
 								href={project.repoUrl}
 								target="_blank"
 								rel="noreferrer"
-								aria-label="Source on GitHub"
 								className="text-muted-foreground hover:bg-muted/50 hover:text-foreground flex size-8 items-center justify-center rounded-[min(var(--radius-md),10px)] transition-colors"
-							/>
+							>
+								<span className="sr-only">Source on GitHub</span>
+							</a>
 						}
 					>
 						<HugeiconsIcon icon={Github01Icon} size={16} />

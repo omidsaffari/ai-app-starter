@@ -25,9 +25,7 @@ const ICONS = {
 	DownloadIcon: () => <HugeiconsIcon icon={HardDriveDownloadIcon} size={14} />,
 	Maximize2Icon: () => <HugeiconsIcon icon={ArrowExpand01Icon} size={14} />,
 	ExternalLinkIcon: () => <HugeiconsIcon icon={LinkSquare01Icon} size={14} />,
-	Loader2Icon: () => (
-		<HugeiconsIcon icon={Loading03Icon} size={14} className="animate-spin" />
-	),
+	Loader2Icon: () => <HugeiconsIcon icon={Loading03Icon} size={14} className="animate-spin" />,
 	RotateCcwIcon: () => <HugeiconsIcon icon={ArrowReloadHorizontalIcon} size={14} />,
 	XIcon: () => <HugeiconsIcon icon={Cancel01Icon} size={14} />,
 	ZoomInIcon: () => <HugeiconsIcon icon={SearchAddIcon} size={14} />,
@@ -39,13 +37,7 @@ const ICONS = {
  * incomplete markdown gracefully while streaming (blurIn animation) and renders
  * finished content statically; typography comes from globals.css ([data-streamdown]).
  */
-export function Markdown({
-	text,
-	isStreaming = false,
-}: {
-	text: string;
-	isStreaming?: boolean;
-}) {
+export function Markdown({ text, isStreaming = false }: { text: string; isStreaming?: boolean }) {
 	return (
 		<div className="group/text">
 			<div className="[&>div>p]:my-4 [&_hr]:my-4 [&_hr]:border-border">

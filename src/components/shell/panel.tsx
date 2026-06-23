@@ -15,7 +15,13 @@ import { project } from "@/lib/project";
  * its key-gate + intro). Simplified from dvnc-cloud: no org switcher, no
  * per-route panel map — one panel, content via props.
  */
-export function SectionPanel({ onToggle, children }: { onToggle: () => void; children?: ReactNode }) {
+export function SectionPanel({
+	onToggle,
+	children,
+}: {
+	onToggle: () => void;
+	children?: ReactNode;
+}) {
 	return (
 		<div className="bg-sidebar flex w-[360px] shrink-0 flex-col">
 			<div className="flex h-14 shrink-0 items-center justify-between gap-2 px-3">
