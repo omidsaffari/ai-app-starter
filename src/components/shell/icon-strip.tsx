@@ -29,9 +29,24 @@ export function IconStrip({ open, onToggle }: { open: boolean; onToggle: () => v
 				/>
 			)}
 
-			{/* Logo — pixelated brand mark, black/white (follows the theme). */}
-			<div className="pointer-events-none relative z-10 flex h-14 shrink-0 items-center justify-center">
-				<BrandMark className="size-6 text-foreground" />
+			{/* Logo — pixelated brand mark; links to the author's site. */}
+			<div className="relative z-10 flex h-14 shrink-0 items-center justify-center">
+				<Tooltip>
+					<TooltipTrigger
+						render={
+							<a
+								href={project.authorUrl}
+								target="_blank"
+								rel="noreferrer"
+								className="text-foreground transition-opacity hover:opacity-70"
+							>
+								<BrandMark className="size-6" />
+								<span className="sr-only">Omid Saffari</span>
+							</a>
+						}
+					/>
+					<TooltipContent side="right">Omid Saffari</TooltipContent>
+				</Tooltip>
 			</div>
 
 			<div className="flex-1" />
@@ -65,12 +80,11 @@ export function IconStrip({ open, onToggle }: { open: boolean; onToggle: () => v
 								rel="noreferrer"
 								className="text-muted-foreground hover:bg-muted/50 hover:text-foreground flex size-8 items-center justify-center rounded-[min(var(--radius-md),10px)] transition-colors"
 							>
+								<HugeiconsIcon icon={Github01Icon} size={16} />
 								<span className="sr-only">Source on GitHub</span>
 							</a>
 						}
-					>
-						<HugeiconsIcon icon={Github01Icon} size={16} />
-					</TooltipTrigger>
+					/>
 					<TooltipContent side="right">Source</TooltipContent>
 				</Tooltip>
 			</div>

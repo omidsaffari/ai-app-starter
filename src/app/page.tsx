@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { ArtificialIntelligence03Icon, PencilEdit02Icon } from "@hugeicons/core-free-icons";
+import { Add01Icon, ArtificialIntelligence03Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { DefaultChatTransport } from "ai";
 import { useMemo, useRef, useState } from "react";
@@ -91,29 +91,41 @@ export default function Home() {
 						/>
 					}
 					banner={
-						<KeyGate
-							provider={provider}
-							value={key}
-							hasKey={hasKey}
-							onSet={setKey}
-							onClear={clear}
-						/>
+						<div className="flex flex-col gap-2.5">
+							{messages.length > 0 && (
+								<Button
+									className="w-full shadow-[0_2px_20px_-4px_rgb(0_0_0/0.08),0_0_40px_-8px_rgb(0_0_0/0.04)]"
+									onClick={handleNew}
+									data-testid="chat-new"
+								>
+									<HugeiconsIcon icon={Add01Icon} size={14} data-icon="inline-start" />
+									New chat
+								</Button>
+							)}
+							<KeyGate
+								provider={provider}
+								value={key}
+								hasKey={hasKey}
+								onSet={setKey}
+								onClear={clear}
+							/>
+						</div>
 					}
 				/>
 			}
 		>
 			<div data-testid="chat-surface" className="relative flex h-svh flex-col">
-				{/* New / reset — top-right, quiet until there's a conversation to clear */}
+				{/* New — mobile only (desktop has it in the panel); secondary, top-right */}
 				{messages.length > 0 && (
-					<div className="absolute right-4 top-3 z-20">
+					<div className="absolute right-3 top-3 z-20 lg:hidden">
 						<Button
-							variant="outline"
+							variant="secondary"
 							size="sm"
 							onClick={handleNew}
-							data-testid="chat-new"
+							data-testid="chat-new-mobile"
 							aria-label="New conversation"
 						>
-							<HugeiconsIcon icon={PencilEdit02Icon} size={16} />
+							<HugeiconsIcon icon={Add01Icon} size={14} data-icon="inline-start" />
 							New
 						</Button>
 					</div>

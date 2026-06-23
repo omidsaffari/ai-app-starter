@@ -1,11 +1,9 @@
 "use client";
 
-import { Menu01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { type ReactNode, useEffect, useState } from "react";
+import { BrandMark } from "@/components/shell/brand-mark";
 import { IconStrip } from "@/components/shell/icon-strip";
 import { SectionPanel } from "@/components/shell/panel";
-import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { project } from "@/lib/project";
 import { cn } from "@/lib/utils";
@@ -63,11 +61,20 @@ export function Shell({ panel, children }: { panel?: ReactNode; children: ReactN
 				</div>
 			</aside>
 
-			{/* Mobile: hamburger Sheet holding the panel */}
+			{/* Mobile: logo + name is the trigger that opens the panel Sheet */}
 			<div className="absolute left-3 top-3 z-30 lg:hidden">
 				<Sheet>
-					<SheetTrigger render={<Button variant="outline" size="icon-sm" aria-label="Open menu" />}>
-						<HugeiconsIcon icon={Menu01Icon} size={16} />
+					<SheetTrigger
+						render={
+							<button
+								type="button"
+								aria-label="Open menu"
+								className="bg-background/70 text-foreground hover:bg-muted/50 flex items-center gap-2 rounded-lg px-2.5 py-1.5 backdrop-blur transition-colors"
+							/>
+						}
+					>
+						<BrandMark className="size-5" />
+						<span className="text-sm font-medium">{project.name}</span>
 					</SheetTrigger>
 					<SheetContent side="left" className="w-[320px] p-0">
 						<SheetTitle className="px-4 pt-4">{project.name}</SheetTitle>

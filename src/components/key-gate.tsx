@@ -13,11 +13,11 @@ import { PROVIDER_COPY } from "@/lib/project";
  * Provider-aware: label + placeholder + storage slot follow the selected model's
  * provider.
  *
- * FIXED FOOTPRINT: the empty and "key set" states share ONE structure — a label,
- * a single `h-10` row, and a constant helper line — and swap only the row's
- * contents. Setting or clearing the key never changes the box's height or shape,
- * so the panel never shifts. Both buttons share `min-w-16` so the row's edges
- * don't move either.
+ * The action button floats INSIDE the field, pinned right (Set when empty, Clear
+ * once set). FIXED FOOTPRINT: empty and "key set" states share one structure — a
+ * label, a single `h-10` field, and a constant helper line — and swap only the
+ * field's contents + the inside button. Both buttons share `min-w-14` and the
+ * same right inset, so nothing shifts on set/clear.
  *
  * Masked (type=password), never rendered back as text; once set, only its length
  * shows. Storage + transport live in `lib/byok.ts`. Stable testids
@@ -49,12 +49,12 @@ export function KeyGate({
 		<Field>
 			<Label htmlFor="byok">{copy.label}</Label>
 
-			{/* One fixed-height row — only its contents swap, so no layout shift. */}
-			<div className="flex h-10 gap-2">
+			{/* Fixed-height field; the action button floats inside, pinned right. */}
+			<div className="relative h-10">
 				{hasKey ? (
 					<div
 						data-testid="byok-status"
-						className="bg-secondary text-muted-foreground flex h-10 flex-1 items-center gap-2 rounded-lg px-3 text-[13px]"
+						className="bg-secondary text-muted-foreground flex h-10 w-full items-center gap-2 rounded-lg pl-3 pr-[4.5rem] text-[13px]"
 					>
 						<span className="bg-emerald-500 size-1.5 shrink-0 rounded-full" aria-hidden="true" />
 						<span className="truncate">Key set · {value.length} chars · masked</span>
@@ -75,16 +75,16 @@ export function KeyGate({
 								submit();
 							}
 						}}
-						className="flex-1"
+						className="h-10 w-full pr-[4.5rem]"
 					/>
 				)}
 
 				{hasKey ? (
 					<Button
 						data-testid="byok-clear"
-						size="lg"
-						variant="outline"
-						className="min-w-16"
+						size="sm"
+						variant="ghost"
+						className="text-muted-foreground hover:text-foreground absolute right-1.5 top-1/2 min-w-14 -translate-y-1/2"
 						onClick={onClear}
 					>
 						Clear
@@ -92,8 +92,8 @@ export function KeyGate({
 				) : (
 					<Button
 						data-testid="byok-set"
-						size="lg"
-						className="min-w-16"
+						size="sm"
+						className="absolute right-1.5 top-1/2 min-w-14 -translate-y-1/2"
 						disabled={!draft.trim()}
 						onClick={submit}
 					>
