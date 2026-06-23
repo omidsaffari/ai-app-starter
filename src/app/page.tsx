@@ -126,7 +126,7 @@ export default function Home() {
 						onClick={handleNew}
 						data-testid="chat-new-mobile"
 						aria-label="New conversation"
-						className="bg-background/70 text-foreground hover:bg-muted/50 absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium backdrop-blur transition-colors lg:hidden"
+						className="text-foreground hover:text-muted-foreground absolute right-4 top-3 z-20 flex items-center gap-1.5 py-1.5 text-[13px] font-medium transition-colors lg:hidden"
 					>
 						<HugeiconsIcon icon={Add01Icon} size={14} />
 						New

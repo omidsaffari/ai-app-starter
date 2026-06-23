@@ -62,14 +62,14 @@ export function Shell({ panel, children }: { panel?: ReactNode; children: ReactN
 			</aside>
 
 			{/* Mobile: logo + name is the trigger that opens the panel Sheet */}
-			<div className="absolute left-3 top-3 z-30 lg:hidden">
+			<div className="absolute left-4 top-3 z-30 lg:hidden">
 				<Sheet>
 					<SheetTrigger
 						render={
 							<button
 								type="button"
 								aria-label="Open menu"
-								className="bg-background/70 text-foreground hover:bg-muted/50 flex items-center gap-2 rounded-lg px-2.5 py-1.5 backdrop-blur transition-colors"
+								className="text-foreground hover:text-muted-foreground flex items-center gap-2 py-1.5 transition-colors"
 							/>
 						}
 					>
@@ -86,7 +86,7 @@ export function Shell({ panel, children }: { panel?: ReactNode; children: ReactN
 			{/* Main column — centered min(1200px), dashed left divider */}
 			<div className="flex min-h-0 min-w-0 flex-1 flex-col lg:border-l lg:border-dashed">
 				<main className="bg-background relative flex flex-1 flex-col overflow-y-auto overscroll-y-none">
-					<div className="animate-page-reveal grid flex-1 content-start grid-cols-[1fr_min(1200px,calc(100%-2rem))_1fr] *:col-2 lg:grid-cols-[1fr_min(1200px,calc(100%-2.5rem))_1fr]">
+					<div className="animate-page-reveal grid flex-1 content-start grid-cols-[1fr_min(1200px,100%)_1fr] *:col-2 lg:grid-cols-[1fr_min(1200px,calc(100%-2.5rem))_1fr]">
 						{children}
 					</div>
 				</main>
