@@ -2,6 +2,7 @@
 
 import { Github01Icon, SidebarLeftIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { BrandMark } from "@/components/shell/brand-mark";
 import { ModeToggle } from "@/components/shell/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -28,9 +29,9 @@ export function IconStrip({ open, onToggle }: { open: boolean; onToggle: () => v
 				/>
 			)}
 
-			{/* Logo — brand ring, matches the panel header height. */}
+			{/* Logo — pixelated brand mark, black/white (follows the theme). */}
 			<div className="pointer-events-none relative z-10 flex h-14 shrink-0 items-center justify-center">
-				<span className="flex size-6 items-center justify-center rounded-full border-[2.5px] border-(--brand)" />
+				<BrandMark className="size-6 text-foreground" />
 			</div>
 
 			<div className="flex-1" />
