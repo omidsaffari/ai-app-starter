@@ -5,7 +5,13 @@ import { ArtificialIntelligence03Icon, PencilEdit02Icon } from "@hugeicons/core-
 import { HugeiconsIcon } from "@hugeicons/react";
 import { DefaultChatTransport } from "ai";
 import { useMemo, useRef, useState } from "react";
-import { AssistantMessage, ChatInput, EmptyState, UserMessage } from "@/components/ai";
+import {
+	AssistantMessage,
+	ChatInput,
+	EmptyState,
+	ModelSelector,
+	UserMessage,
+} from "@/components/ai";
 import { KeyGate } from "@/components/key-gate";
 import { Shell } from "@/components/shell/shell";
 import { Button } from "@/components/ui/button";
@@ -28,8 +34,7 @@ import { project } from "@/lib/project";
  * shell + BYOK core stay untouched.
  */
 export default function Home() {
-	// Task 3 swaps this for `useState(DEFAULT_MODEL_ID)` + the model selector.
-	const modelId = DEFAULT_MODEL_ID;
+	const [modelId, setModelId] = useState(DEFAULT_MODEL_ID);
 	const provider = providerOf(modelId);
 	const { key, setKey, clear, hasKey } = useByokKey(provider);
 	const [input, setInput] = useState("");
@@ -157,7 +162,9 @@ export default function Home() {
 						isLoading={isLoading}
 						disabled={!hasKey}
 						placeholder={hasKey ? "Ask anything — or ask for an image…" : "Set your key first"}
-					/>
+					>
+						<ModelSelector model={modelId} setModel={setModelId} />
+					</ChatInput>
 				</div>
 			</div>
 		</Shell>

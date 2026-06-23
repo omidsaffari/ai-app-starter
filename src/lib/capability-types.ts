@@ -11,6 +11,8 @@ import type { LanguageModel, ToolSet, UIMessage } from "ai";
 export interface CapabilityInput {
 	/** The visitor's BYOK API key. Used to build the provider client; never stored or logged. */
 	apiKey: string;
+	/** The selected `provider/model` id (from `lib/models.ts`). */
+	modelId: string;
 	/** The full conversation from the client (`useChat` messages). */
 	messages: UIMessage[];
 }

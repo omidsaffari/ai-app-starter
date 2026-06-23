@@ -1,5 +1,6 @@
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { buildCapability } from "@/lib/capability";
+import { DEFAULT_MODEL_ID, modelOption } from "@/lib/models";
 import { redactSecret } from "@/lib/secret";
 
 // The BYOK proxy. The browser can't call most providers directly (CORS + key
@@ -17,17 +18,20 @@ export async function POST(req: Request): Promise<Response> {
 	}
 
 	let messages: UIMessage[];
+	let modelId: string;
 	try {
-		const body = (await req.json()) as { messages?: unknown };
+		const body = (await req.json()) as { messages?: unknown; modelId?: unknown };
 		if (!Array.isArray(body.messages)) {
 			return new Response("Invalid request body.", { status: 400 });
 		}
 		messages = body.messages as UIMessage[];
+		// Resolve to a known model id; an unknown/missing id falls back to the default.
+		modelId = typeof body.modelId === "string" ? modelOption(body.modelId).id : DEFAULT_MODEL_ID;
 	} catch {
 		return new Response("Invalid request body.", { status: 400 });
 	}
 
-	const { model, system, tools } = buildCapability({ apiKey, messages });
+	const { model, system, tools } = buildCapability({ apiKey, modelId, messages });
 
 	const result = streamText({
 		model,
