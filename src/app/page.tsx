@@ -1,12 +1,14 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { ArtificialIntelligence03Icon } from "@hugeicons/core-free-icons";
+import { ArtificialIntelligence03Icon, PencilEdit02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { DefaultChatTransport } from "ai";
 import { useMemo, useRef, useState } from "react";
 import { AssistantMessage, ChatInput, EmptyState, UserMessage } from "@/components/ai";
 import { KeyGate } from "@/components/key-gate";
 import { Shell } from "@/components/shell/shell";
+import { Button } from "@/components/ui/button";
 import { PROVIDER_KEY_HEADER, readKey, useByokKey } from "@/lib/byok";
 import { DEFAULT_MODEL_ID, providerOf } from "@/lib/models";
 import { project } from "@/lib/project";
@@ -52,7 +54,7 @@ export default function Home() {
 		[],
 	);
 
-	const { messages, sendMessage, status, stop, error } = useChat({ transport });
+	const { messages, sendMessage, setMessages, status, stop, error } = useChat({ transport });
 	const isLoading = status === "submitted" || status === "streaming";
 
 	const handleSubmit = () => {
@@ -60,6 +62,13 @@ export default function Home() {
 		if (!text || isLoading || !hasKey) return;
 		setInput("");
 		sendMessage({ text });
+	};
+
+	// Reset the conversation back to the empty state (keeps the key set).
+	const handleNew = () => {
+		stop();
+		setMessages([]);
+		setInput("");
 	};
 
 	return (
@@ -76,7 +85,23 @@ export default function Home() {
 				</div>
 			}
 		>
-			<div data-testid="chat-surface" className="flex h-svh flex-col">
+			<div data-testid="chat-surface" className="relative flex h-svh flex-col">
+				{/* New / reset — top-right, quiet until there's a conversation to clear */}
+				{messages.length > 0 && (
+					<div className="absolute right-4 top-3 z-20">
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={handleNew}
+							data-testid="chat-new"
+							aria-label="New conversation"
+						>
+							<HugeiconsIcon icon={PencilEdit02Icon} size={16} />
+							New
+						</Button>
+					</div>
+				)}
+
 				{/* Conversation */}
 				<div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 					<div className="mx-auto flex min-h-full w-full max-w-3xl flex-col gap-8 px-4 pt-12 pb-4 lg:pt-6">
