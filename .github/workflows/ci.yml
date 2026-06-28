@@ -30,6 +30,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: stable
+          cache: false
 
       - name: Install
         run: bun install --frozen-lockfile
@@ -45,7 +46,7 @@ jobs:
 
       - name: Secret scan
         run: |
-          go install github.com/gitleaks/gitleaks/v8@latest
+          go install github.com/zricethezav/gitleaks/v8@latest
           "$HOME/go/bin/gitleaks" detect --source . --redact --verbose
 
       - name: Install Playwright browser
