@@ -22,7 +22,9 @@ key. Every future demo (~100 planned) clones this and swaps two files.
    (label/placeholder/help for the chosen provider).
 3. **`src/app/page.tsx`** — the demo UI. Compose the kit (Shell + AI kit) for the
    specific capability; the default is a chat+image conversation.
-4. **`README.md`** — fill the placeholders (what it is, demo link, architecture).
+4. **`package-metadata.json`** — release packaging metadata. The autopilot runner
+   uses it to generate `README.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`,
+   `CHANGELOG.md`, `assets/og.html`, and `assets/og.png`.
 
 ## What you must NOT touch — the trust boundary (frozen)
 
@@ -45,6 +47,13 @@ key. Every future demo (~100 planned) clones this and swaps two files.
   content; keep the one-rail / one-panel / one-main shape.
 - **`src/app/globals.css`** — the OKLCH token store (light + dark + sidebar +
   brand + streamdown typography). Tokens only.
+
+## Package surface
+
+Use `$OSS_AUTOPILOT_ROOT/templates/package-metadata.example.json` as the shape for
+`package-metadata.json`. Do not hand-design the OG image. The release runner
+renders the standard black card with the pixel Labs mark, left-aligned title,
+and mono type/tagline. No decorative right-side graphics.
 
 ## The Labs kitchen — inventory
 
