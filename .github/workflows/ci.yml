@@ -9,7 +9,7 @@ jobs:
   gates:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0 # gitleaks scans a commit range; it needs full history, not a shallow clone
 
@@ -27,7 +27,7 @@ jobs:
         with:
           bun-version: latest
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: stable
           cache: false
