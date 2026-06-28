@@ -11,10 +11,17 @@ export function useScrollToBottom() {
 	const [isAtBottom, setIsAtBottom] = useState(true);
 	const isAtBottomRef = useRef(true);
 	const isUserScrollingRef = useRef(false);
+	const frameRef = useRef<number | null>(null);
 
 	useEffect(() => {
 		isAtBottomRef.current = isAtBottom;
 	}, [isAtBottom]);
+
+	const setAtBottom = useCallback((next: boolean) => {
+		if (isAtBottomRef.current === next) return;
+		isAtBottomRef.current = next;
+		setIsAtBottom(next);
+	}, []);
 
 	const checkIfAtBottom = useCallback(() => {
 		if (!containerRef.current) return true;
@@ -36,8 +43,7 @@ export function useScrollToBottom() {
 			isUserScrollingRef.current = true;
 			clearTimeout(scrollTimeout);
 			const atBottom = checkIfAtBottom();
-			setIsAtBottom(atBottom);
-			isAtBottomRef.current = atBottom;
+			setAtBottom(atBottom);
 			scrollTimeout = setTimeout(() => {
 				isUserScrollingRef.current = false;
 			}, 150);
@@ -47,20 +53,18 @@ export function useScrollToBottom() {
 			container.removeEventListener("scroll", handleScroll);
 			clearTimeout(scrollTimeout);
 		};
-	}, [checkIfAtBottom]);
+	}, [checkIfAtBottom, setAtBottom]);
 
 	// Content changes (new messages, streaming text, images) → follow if pinned.
 	useEffect(() => {
 		const container = containerRef.current;
 		if (!container) return;
 		const scrollIfNeeded = () => {
-			if (isAtBottomRef.current && !isUserScrollingRef.current) {
-				requestAnimationFrame(() => {
-					container.scrollTo({ top: container.scrollHeight, behavior: "instant" });
-					setIsAtBottom(true);
-					isAtBottomRef.current = true;
-				});
-			}
+			if (!isAtBottomRef.current || isUserScrollingRef.current || frameRef.current !== null) return;
+			frameRef.current = requestAnimationFrame(() => {
+				frameRef.current = null;
+				container.scrollTo({ top: container.scrollHeight, behavior: "instant" });
+			});
 		};
 		const mutationObserver = new MutationObserver(scrollIfNeeded);
 		mutationObserver.observe(container, { childList: true, subtree: true, characterData: true });
@@ -70,6 +74,7 @@ export function useScrollToBottom() {
 			resizeObserver.observe(child);
 		}
 		return () => {
+			if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
 			mutationObserver.disconnect();
 			resizeObserver.disconnect();
 		};
