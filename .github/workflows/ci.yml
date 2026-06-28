@@ -27,6 +27,10 @@ jobs:
         with:
           bun-version: latest
 
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
       - name: Install
         run: bun install --frozen-lockfile
 
@@ -41,8 +45,8 @@ jobs:
 
       - name: Secret scan
         run: |
-          curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/install.sh | sh -s -- -b "$RUNNER_TEMP/bin"
-          "$RUNNER_TEMP/bin/gitleaks" detect --source . --redact --verbose
+          go install github.com/gitleaks/gitleaks/v8@latest
+          "$HOME/go/bin/gitleaks" detect --source . --redact --verbose
 
       - name: Install Playwright browser
         run: bunx playwright install --with-deps chromium
