@@ -58,10 +58,11 @@ jobs:
       - name: Validate package surface
         if: steps.scaffold.outputs.is_template == 'false'
         run: |
-          for file in README.md CODE_OF_CONDUCT.md CONTRIBUTING.md CHANGELOG.md LICENSE assets/og.html assets/og.png; do
+          for file in README.md CODE_OF_CONDUCT.md CONTRIBUTING.md CHANGELOG.md LICENSE assets/og.html assets/og.png public/og.png src/app/opengraph-image.png src/app/twitter-image.png; do
             test -s "$file" || { echo "::error::$file is required"; exit 1; }
           done
           size=$(wc -c < assets/og.png)
           if [ "$size" -gt 1048576 ]; then
             echo "::error::assets/og.png must be under 1MB"; exit 1
           fi
+          grep -q 'assets/og.png' README.md || { echo "::error::README.md must display assets/og.png"; exit 1; }

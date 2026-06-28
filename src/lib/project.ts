@@ -12,6 +12,7 @@ export const project = {
 	tagline:
 		"A bring-your-own-key chat + image demo — paste your own API key; it never leaves your session.",
 	repoUrl: "https://github.com/omidsaffari/ai-app-starter",
+	siteUrl: "https://ai-app-starter.vercel.app",
 	// The logo links here. UTMs attribute the visit in omidsaffari.com analytics:
 	// utm_source = this demo's slug (the autopilot sets it per release),
 	// utm_medium = oss-demo, utm_campaign = labs (groups all demo traffic).

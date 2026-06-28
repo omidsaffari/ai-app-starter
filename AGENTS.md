@@ -18,13 +18,14 @@ key. Every future demo (~100 planned) clones this and swaps two files.
    `imageGeneration` tool (text + in-conversation images on one surface). Swap
    `createAnthropic` / `createGoogleGenerativeAI` + a model id for other providers.
    **Verify the current model id at build time — never trust a hardcoded one.**
-2. **`src/lib/project.ts`** — name, tagline, repo URL, and the key-field copy
-   (label/placeholder/help for the chosen provider).
+2. **`src/lib/project.ts`** — name, tagline, repo URL, site URL, and the
+   key-field copy (label/placeholder/help for the chosen provider).
 3. **`src/app/page.tsx`** — the demo UI. Compose the kit (Shell + AI kit) for the
    specific capability; the default is a chat+image conversation.
 4. **`package-metadata.json`** — release packaging metadata. The autopilot runner
    uses it to generate `README.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`,
-   `CHANGELOG.md`, `assets/og.html`, and `assets/og.png`.
+   `CHANGELOG.md`, `assets/og.html`, `assets/og.png`, `public/og.png`,
+   `src/app/opengraph-image.png`, and `src/app/twitter-image.png`.
 
 ## What you must NOT touch — the trust boundary (frozen)
 
@@ -53,7 +54,8 @@ key. Every future demo (~100 planned) clones this and swaps two files.
 Use `$OSS_AUTOPILOT_ROOT/templates/package-metadata.example.json` as the shape for
 `package-metadata.json`. Do not hand-design the OG image. The release runner
 renders the standard black card with the pixel Labs mark, left-aligned title,
-and mono type/tagline. No decorative right-side graphics.
+and mono type/tagline, then installs the same image as the app's Open Graph and
+Twitter preview. No decorative right-side graphics.
 
 ## The Labs kitchen — inventory
 

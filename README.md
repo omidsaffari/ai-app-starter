@@ -21,8 +21,9 @@ key of the author's is involved — you pay only for your own usage.
 ## Architecture
 
 For generated releases, `README.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`,
-`CHANGELOG.md`, and `assets/og.png` are produced by the oss-autopilot package
-step from `package-metadata.json`. Do not hand-design the OG card per release.
+`CHANGELOG.md`, `assets/og.png`, and app share-preview images are produced by
+the oss-autopilot package step from `package-metadata.json`. Do not hand-design
+the OG card per release.
 
 - **Next.js (App Router)** on Vercel; **Tailwind v4** + shadcn (Base UI) + HugeIcons.
 - BYOK key handling in `src/lib/byok.ts` + `src/lib/secret.ts` (the trust boundary).
