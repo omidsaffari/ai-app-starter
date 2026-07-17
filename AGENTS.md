@@ -10,6 +10,25 @@ It ships as a working **chat + image** demo: a single conversation surface that
 streams markdown text AND renders in-conversation images, all on the visitor's
 key. Every future demo (~100 planned) clones this and swaps two files.
 
+## Platform packs — pick ONE before anything else
+
+`packs/` holds one self-contained backend pack per platform (today: `eve`;
+coming: `claude`, `openai`, `gemini`, …). The FIRST step of every project
+build is choosing the project's platform and applying its pack:
+
+```
+bun scripts/apply-pack.ts <pack>    # or `none` for a pure BYOK client demo
+bun install
+```
+
+The script applies the pack's files, patches package.json, and deletes
+`packs/` + itself — the published repo carries exactly ONE platform and zero
+pack machinery. Each pack's `PACK.md` is part of this contract once applied:
+it defines the pack's trust-boundary changes (e.g. the eve pack REMOVES the
+BYOK surface whole — never modified — and makes the eve channel auth the
+inbound boundary), its cost rules, and its capability recipes. Read the
+PACK.md BEFORE applying; follow it after.
+
 ## What you (the build agent) change — the per-project slot
 
 1. **`src/lib/capability.ts`** — the ONE logic slot. `buildCapability` builds the
@@ -28,6 +47,10 @@ key. Every future demo (~100 planned) clones this and swaps two files.
    `src/app/opengraph-image.png`, and `src/app/twitter-image.png`.
 
 ## What you must NOT touch — the trust boundary (frozen)
+
+Applies to BYOK-mode projects (pack `none` and BYOK-transport packs). An
+applied pack's PACK.md may REMOVE parts of this surface whole (removal-only,
+never modification) and declares its replacement boundary.
 
 - **`src/lib/byok.ts` + `src/lib/secret.ts`** — BYOK key handling. The key stays
   in `sessionStorage`, rides per-request via the `x-provider-key` header (constant

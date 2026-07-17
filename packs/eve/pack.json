@@ -1,0 +1,43 @@
+{
+	"name": "eve",
+	"description": "Durable backend agent on Vercel's eve — sessions, tools, skills, approvals, subagents, schedules, sandbox — behind the Labs chat surface.",
+	"remove": [
+		"src/app/api/run",
+		"src/lib/byok.ts",
+		"src/lib/secret.ts",
+		"src/lib/capability.ts",
+		"src/lib/capability-types.ts",
+		"src/lib/models.ts",
+		"src/lib/create-model.ts",
+		"src/components/key-gate.tsx",
+		"src/components/ai/model-selector.tsx",
+		"tests/byok.spec.ts"
+	],
+	"dependencies": {
+		"add": {
+			"eve": "0.24.6",
+			"ai": "^7.0.26",
+			"zod": "4.4.3",
+			"@vercel/connect": "0.2.2"
+		},
+		"remove": ["@ai-sdk/anthropic", "@ai-sdk/google", "@ai-sdk/openai", "@ai-sdk/react"]
+	},
+	"packageJson": {
+		"imports": {
+			"#*": "./agent/*",
+			"#evals/*": "./evals/*"
+		},
+		"overrides": {
+			"ai": "^7.0.26"
+		},
+		"scripts": {
+			"build:eve": "eve build",
+			"dev:eve": "eve dev",
+			"start:eve": "eve start"
+		},
+		"engines": {
+			"node": "24.x"
+		}
+	},
+	"postNotes": "Next: bun install · `bun x eve link` pulls AI Gateway credentials into .env.local · `bun x eve dev` opens the agent TUI. The living eve reference is node_modules/eve/docs (versioned to the install) — read it before writing agent code."
+}

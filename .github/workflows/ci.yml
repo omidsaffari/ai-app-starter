@@ -66,3 +66,53 @@ jobs:
             echo "::error::assets/og.png must be under 1MB"; exit 1
           fi
           grep -q 'assets/og.png' README.md || { echo "::error::README.md must display assets/og.png"; exit 1; }
+
+  # Template-only: prove the eve pack applies and builds. Zero model calls —
+  # eve build / next build / the mount-smoke spec are all free.
+  pack-eve-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Template only
+        id: scaffold
+        run: |
+          if [ -f .ai-app-starter-template ]; then
+            echo "is_template=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_template=false" >> "$GITHUB_OUTPUT"
+            echo "Generated repo — pack smoke skipped."
+          fi
+
+      - uses: oven-sh/setup-bun@v2
+        if: steps.scaffold.outputs.is_template == 'true'
+        with:
+          bun-version: latest
+
+      - uses: actions/setup-node@v4
+        if: steps.scaffold.outputs.is_template == 'true'
+        with:
+          node-version: 24
+
+      - name: Apply eve pack
+        if: steps.scaffold.outputs.is_template == 'true'
+        run: |
+          bun install --frozen-lockfile
+          bun scripts/apply-pack.ts eve
+          bun install
+
+      - name: eve build
+        if: steps.scaffold.outputs.is_template == 'true'
+        run: bun x eve build
+
+      - name: Typecheck + build
+        if: steps.scaffold.outputs.is_template == 'true'
+        run: |
+          bun run typecheck
+          bun run build
+
+      - name: Mount smoke
+        if: steps.scaffold.outputs.is_template == 'true'
+        run: |
+          bunx playwright install --with-deps chromium
+          bun run test
