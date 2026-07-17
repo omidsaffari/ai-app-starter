@@ -6,6 +6,9 @@ import { isFileUIPart, isReasoningUIPart, isTextUIPart, type UIMessage } from "a
 import { useCallback, useState } from "react";
 import { ImageFrame } from "@/components/ai/image-frame";
 import { Markdown } from "@/components/ai/markdown";
+import { Bubble, BubbleContent } from "@/components/ui/bubble";
+import { Button } from "@/components/ui/button";
+import { Message, MessageContent, MessageFooter } from "@/components/ui/message";
 
 // ─── User message ────────────────────────────────────────────────────────────
 
@@ -25,21 +28,24 @@ export function UserMessage({ message }: { message: UIMessage }) {
 	if (!fullText) return null;
 
 	return (
-		<div className="group/message fade-in animate-in w-full duration-200">
-			<div className="flex w-full items-start justify-end gap-2">
-				<button
-					type="button"
-					onClick={handleCopy}
-					className="text-muted-foreground/50 hover:bg-muted hover:text-foreground mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md transition-all sm:opacity-0 sm:group-hover/message:opacity-100"
-					title="Copy text"
-				>
-					<HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={12} />
-				</button>
-				<div className="bg-foreground text-background max-w-full min-w-0 overflow-hidden rounded-2xl rounded-br-sm px-3 py-1.5">
-					<div className="wrap-break-word whitespace-pre-wrap">{fullText}</div>
-				</div>
-			</div>
-		</div>
+		<Message align="end" className="fade-in animate-in duration-200">
+			<MessageContent>
+				<Bubble align="end">
+					<BubbleContent className="text-base whitespace-pre-wrap">{fullText}</BubbleContent>
+				</Bubble>
+				<MessageFooter className="sm:opacity-0 sm:transition-opacity sm:group-hover/message:opacity-100">
+					<Button
+						variant="ghost"
+						size="icon-xs"
+						onClick={handleCopy}
+						aria-label="Copy message"
+						className="text-muted-foreground/50 hover:text-foreground"
+					>
+						<HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={12} />
+					</Button>
+				</MessageFooter>
+			</MessageContent>
+		</Message>
 	);
 }
 
@@ -47,9 +53,9 @@ export function UserMessage({ message }: { message: UIMessage }) {
 
 /**
  * Renders an assistant message by mapping over its parts:
- *   text → Streamdown markdown, file(image/*) → in-column ImageFrame,
+ *   text → ghost Bubble + Streamdown markdown (Typeset chat rhythm),
+ *   file(image/*) → in-column ImageFrame,
  *   reasoning → a muted collapsible-free block.
- * Pruned from dvnc-cloud: no google-tools cards, metadata badge, or selection.
  */
 export function AssistantMessage({
 	message,
@@ -59,20 +65,26 @@ export function AssistantMessage({
 	isStreaming: boolean;
 }) {
 	return (
-		<div className="group/message fade-in animate-in w-full duration-200">
-			<div className="flex w-full flex-col gap-3">
+		<Message className="fade-in animate-in duration-200">
+			<MessageContent className="gap-3">
 				{message.parts.map((part, i) => {
 					const key = `${message.id}-${i}`;
 
 					if (isTextUIPart(part) && part.text) {
-						return <Markdown key={key} text={part.text} isStreaming={isStreaming} />;
+						return (
+							<Bubble key={key} variant="ghost">
+								<BubbleContent>
+									<Markdown text={part.text} isStreaming={isStreaming} />
+								</BubbleContent>
+							</Bubble>
+						);
 					}
 
 					if (isReasoningUIPart(part) && part.text) {
 						return (
 							<div
 								key={key}
-								className="text-muted-foreground/70 border-border border-l-2 pl-3 text-[13px] leading-relaxed italic"
+								className="text-muted-foreground/70 border-border border-l-2 pl-3 text-sm leading-relaxed italic"
 							>
 								{part.text}
 							</div>
@@ -85,7 +97,7 @@ export function AssistantMessage({
 
 					return null;
 				})}
-			</div>
-		</div>
+			</MessageContent>
+		</Message>
 	);
 }

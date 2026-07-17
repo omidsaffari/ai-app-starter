@@ -17,5 +17,20 @@
 		"enabled": true,
 		"rules": { "preset": "recommended" }
 	},
+	"overrides": [
+		{
+			"includes": ["src/components/ui/**"],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"useSemanticElements": "off",
+						"useFocusableInteractive": "off",
+						"useKeyWithClickEvents": "off",
+						"useAriaPropsForRole": "off"
+					}
+				}
+			}
+		}
+	],
 	"assist": { "actions": { "source": { "organizeImports": "on" } } }
 }

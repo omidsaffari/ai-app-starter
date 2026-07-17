@@ -35,36 +35,30 @@ const ICONS = {
 /**
  * Streamdown markdown renderer — the canonical AI-output renderer. Parses
  * incomplete markdown gracefully while streaming (blurIn animation) and renders
- * finished content statically; typography comes from globals.css ([data-streamdown]).
+ * finished content statically. Typography is Typeset (src/app/typeset.css): the
+ * `typeset typeset-chat` container styles every rendered element with the chat
+ * rhythm — append-stable while streaming, tokens from the app theme.
  */
 export function Markdown({ text, isStreaming = false }: { text: string; isStreaming?: boolean }) {
 	return (
-		<div className="group/text">
-			<div className="[&>div>p]:my-4 [&_hr]:my-4 [&_hr]:border-border">
-				<Streamdown
-					plugins={{ code }}
-					icons={ICONS}
-					isAnimating={isStreaming}
-					animated={isStreaming ? { animation: "blurIn", easing: "ease-in-out" } : false}
-					mode={isStreaming ? "streaming" : "static"}
-					linkSafety={{ enabled: false }}
-					components={{
-						a: ({ href, children, ...props }) => (
-							<a
-								{...props}
-								href={href}
-								target="_blank"
-								rel="noreferrer"
-								className="text-muted-foreground hover:text-foreground font-normal transition-colors"
-							>
-								{children}
-							</a>
-						),
-					}}
-				>
-					{text}
-				</Streamdown>
-			</div>
+		<div className="typeset typeset-chat group/text">
+			<Streamdown
+				plugins={{ code }}
+				icons={ICONS}
+				isAnimating={isStreaming}
+				animated={isStreaming ? { animation: "blurIn", easing: "ease-in-out" } : false}
+				mode={isStreaming ? "streaming" : "static"}
+				linkSafety={{ enabled: false }}
+				components={{
+					a: ({ href, children, ...props }) => (
+						<a {...props} href={href} target="_blank" rel="noreferrer">
+							{children}
+						</a>
+					),
+				}}
+			>
+				{text}
+			</Streamdown>
 		</div>
 	);
 }

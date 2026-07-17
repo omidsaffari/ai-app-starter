@@ -1,12 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./shadcn.css";
+@import "./typeset.css";
 
 /* Tailwind v4 must scan Streamdown's compiled JS so the utility classes it emits
    get generated. Paths are relative to this file (src/app/ → repo node_modules). */
 @source "../../node_modules/streamdown/dist/*.js";
 @source "../../node_modules/@streamdown/code/dist/*.js";
-
-@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -54,6 +54,10 @@ button:not(:disabled),
 	--color-popover: var(--popover);
 	--color-card-foreground: var(--card-foreground);
 	--color-card: var(--card);
+	/* Labs type scale — text-sm is 13px here, so every vendored shadcn component
+	   (which speaks text-sm) matches the shell's 13px chrome without per-file edits. */
+	--text-sm: 0.8125rem;
+	--text-sm--line-height: 1.25rem;
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -224,32 +228,6 @@ button:not(:disabled),
 	animation: slide-in-right 0.3s ease-out both;
 }
 
-/* AI chat markdown — force prose to use our design tokens */
-.prose-chat {
-	--tw-prose-body: var(--foreground);
-	--tw-prose-headings: var(--foreground);
-	--tw-prose-bold: var(--foreground);
-	--tw-prose-counters: var(--muted-foreground);
-	--tw-prose-bullets: var(--muted-foreground);
-	--tw-prose-hr: var(--border);
-	--tw-prose-quotes: var(--muted-foreground);
-	--tw-prose-quote-borders: var(--border);
-	--tw-prose-captions: var(--muted-foreground);
-	--tw-prose-th-borders: var(--border);
-	--tw-prose-td-borders: var(--border);
-	--tw-prose-invert-body: var(--foreground);
-	--tw-prose-invert-headings: var(--foreground);
-	--tw-prose-invert-bold: var(--foreground);
-	--tw-prose-invert-counters: var(--muted-foreground);
-	--tw-prose-invert-bullets: var(--muted-foreground);
-	--tw-prose-invert-hr: var(--border);
-	--tw-prose-invert-quotes: var(--muted-foreground);
-	--tw-prose-invert-quote-borders: var(--border);
-	--tw-prose-invert-captions: var(--muted-foreground);
-	--tw-prose-invert-th-borders: var(--border);
-	--tw-prose-invert-td-borders: var(--border);
-}
-
 /* Hide native number input spinners */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
@@ -260,81 +238,28 @@ input[type="number"] {
 	-moz-appearance: textfield;
 }
 
-/* ─── Streamdown — markdown typography (body = 16px) ──────────────────────────
-   Scoped to [data-streamdown="…"], so it only touches Streamdown-rendered output.
-   Glass tokens swapped for ours. */
+/* ─── Typeset presets — the reading rhythm per context ────────────────────────
+   typeset.css (vendored, unlayered) styles rendered markdown by ELEMENT inside
+   a `typeset` container. Pin its font slots to the app fonts here, then tune
+   rhythm per context with a preset class. Three controls: size, leading, flow. */
 
-[data-streamdown="heading-1"] {
-	font-size: 1.75rem;
-	line-height: 2.25rem;
-	font-weight: 600;
-	margin-top: 2rem;
-	margin-bottom: 0.625rem;
+:root {
+	--font-heading: var(--font-geist-sans);
 }
 
-[data-streamdown="heading-2"] {
-	font-size: 1.375rem;
-	line-height: 1.875rem;
-	font-weight: 600;
-	margin-top: 1.75rem;
-	margin-bottom: 0.5rem;
+.typeset {
+	--typeset-font-mono: var(--font-geist-mono);
 }
 
-[data-streamdown="heading-3"] {
-	font-size: 1.25rem;
-	line-height: 1.75rem;
-	font-weight: 600;
-	margin-top: 1.5rem;
-	margin-bottom: 0.5rem;
+/* Chat: tighter rhythm inside the conversation column. */
+.typeset-chat {
+	--typeset-flow: 1em;
+	--typeset-leading: 1.6;
 }
 
-[data-streamdown="heading-4"],
-[data-streamdown="heading-5"],
-[data-streamdown="heading-6"] {
-	font-size: 1.0625rem;
-	line-height: 1.5rem;
-	font-weight: 600;
-	margin-top: 1.25rem;
-	margin-bottom: 0.3rem;
-}
-
-[data-streamdown="heading-1"]:first-child,
-[data-streamdown="heading-2"]:first-child,
-[data-streamdown="heading-3"]:first-child,
-[data-streamdown="heading-4"]:first-child {
-	margin-top: 0;
-}
-
-/* Streamdown ships lists as `list-inside pl-6`. Force `outside` (bullet hangs, text
-   aligns, wraps align) — with `outside` the dot↔text gap equals the indent, so a
-   small padding-left keeps the bullet close to the text. Muted marker.
-   (Unlayered rules beat Streamdown's utility-layer classes.) */
-[data-streamdown="unordered-list"],
-[data-streamdown="ordered-list"] {
-	list-style-position: outside;
-	margin-top: 1rem;
-	margin-bottom: 1rem;
-}
-
-[data-streamdown="unordered-list"] {
-	list-style-type: disc;
-	padding-left: 0.75rem;
-}
-
-[data-streamdown="ordered-list"] {
-	list-style-type: decimal;
-	padding-left: 1.15rem;
-}
-
-[data-streamdown="list-item"] {
-	margin-top: 0.4rem;
-	margin-bottom: 0.4rem;
-}
-
-[data-streamdown="list-item"]::marker {
-	color: var(--color-muted-foreground);
-}
-
-[data-streamdown="inline-code"] {
-	border-radius: calc(var(--radius) * 0.5);
+/* Documents: roomier rhythm for result docs and long-form output. */
+.typeset-doc {
+	--typeset-size: 15px;
+	--typeset-flow: 1.5em;
+	--typeset-leading: 1.75;
 }

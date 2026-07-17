@@ -43,11 +43,25 @@ key. Every future demo (~100 planned) clones this and swaps two files.
 
 ## Editable surfaces
 
-- **`src/components/ui/*`** — shadcn primitives (Base UI). Edit directly, never wrap.
+- **`src/components/ui/*`** — the full shadcn/Base UI pantry (58 components),
+  vendored as owned source and restyled to the Labs look. Edit directly, never wrap.
 - **`src/components/shell/*`** — the simplified shell. Restyle / extend the panel
   content; keep the one-rail / one-panel / one-main shape.
 - **`src/app/globals.css`** — the OKLCH token store (light + dark + sidebar +
-  brand + streamdown typography). Tokens only.
+  brand + the 13px `--text-sm` Labs type scale + typeset presets). Tokens only.
+
+## The composition rule (this is how 13 repos stayed clean — keep it)
+
+**Compose pages ONLY from `ui/` + `ai/` + `shell/`.** The pantry has a primitive
+for nearly everything: forms (`field`, `input`, `select`, `radio-group`, `slider`,
+`switch`, `toggle-group`, `native-select`), surfaces (`card`, `item`, `empty`,
+`tabs`, `accordion`, `table`, `kbd`, `badge`, `skeleton`, `spinner`), overlays
+(`dialog`, `sheet`, `drawer`, `popover`, `command`, `dropdown-menu`), and the chat
+stack (`message-scroller`, `message`, `bubble`, `marker`, `attachment`). Do NOT
+hand-roll a one-off pattern with raw Tailwind in `page.tsx` — if a pattern is
+genuinely missing, add it to the kit first (styled with the tokens), then use it.
+Rendered markdown always goes inside a `typeset` container with a preset
+(`typeset-chat` in conversation, `typeset-doc` for documents).
 
 ## Package surface
 
@@ -61,13 +75,28 @@ Twitter preview. No decorative right-side graphics.
 
 **Design system / tokens**
 - `src/app/globals.css` — shadcn OKLCH palette (light/dark), `sidebar-*`, `--brand`,
-  `--radius` scale, `[data-streamdown]` markdown typography, tw-animate + page/slide
-  reveal keyframes, `.prose-chat` token bridge.
-- `src/lib/utils.ts` — `cn` (clsx + tailwind-merge). `components.json` — shadcn config.
+  `--radius` scale, the Labs type scale (`--text-sm` = 13px so every vendored
+  component matches the shell chrome), typeset presets (`typeset-chat`,
+  `typeset-doc`), tw-animate + page/slide reveal keyframes.
+- `src/app/typeset.css` — shadcn/typeset vendored as owned source: element-level
+  markdown/prose styling inside a `typeset` container, three controls (size,
+  leading, flow), append-stable while streaming. UNLAYERED deliberately so it
+  beats Streamdown's baked utility classes; opt out with `not-typeset`.
+- `src/app/shadcn.css` — the shadcn shared layer (data-state variants,
+  scroll-fade + shimmer utilities) + Labs scrollbar utilities.
+- `src/lib/utils.ts` — `cn` (clsx + tailwind-merge). `components.json` — shadcn config
+  (`base-vega` style, HugeIcons icon library).
 - `src/app/layout.tsx` — Geist sans/mono, `next-themes` ThemeProvider (default dark),
   TooltipProvider.
 
-**UI primitives (`src/components/ui/`)** — `button`, `tooltip`, `sheet` (Base UI).
+**UI pantry (`src/components/ui/`)** — the full latest-shadcn Base UI set (58
+components, owned source, HugeIcons, Labs-styled: 13px chrome, `rounded-lg`
+buttons, `bg-muted/50` hover tier, flush secondary inputs, diffused popover
+shadow). Includes the AI chat stack: `message-scroller` (headless behavior from
+`@shadcn/react`: follow-output, turn anchoring, prepend-safe history, jump
+commands), `message`, `bubble` (7 variants), `marker`, `attachment` (upload
+states + shimmer). Excluded on purpose: `sidebar` (competes with the shell as a
+second app frame) and `direction` (RTL provider we don't use).
 
 **Shell (`src/components/shell/`)** — `shell` (48px rail + 360px collapsible panel
 + centered `min(1200px)` main with dashed left divider; ⌘B toggle; mobile hamburger
@@ -75,10 +104,13 @@ Sheet), `icon-strip`, `panel`, `mode-toggle`. Dropped vs dvnc-cloud: org switche
 multi-route panel map, hide-header/hide-panel routing, auth/AppProvider.
 
 **AI kit (`src/components/ai/`)** — `chat-input` (textarea + send/stop), `markdown`
-(Streamdown + `@streamdown/code`, blurIn streaming, HugeIcons chrome), `chat-message`
-(User bubble + Assistant `UIMessage`-part mapper: text→markdown, image→ImageFrame,
-reasoning→muted block), `image-frame` (in-column, NOT full-bleed), `empty-state`,
-`index` barrel. Excluded from dvnc-cloud's imagi: the full-bleed image canvas + row.
+(Streamdown + `@streamdown/code`, blurIn streaming, HugeIcons chrome, output
+wrapped in `typeset typeset-chat`), `chat-message` (User = end-aligned primary
+`Bubble` + copy in `MessageFooter`; Assistant = ghost `Bubble` `UIMessage`-part
+mapper: text→markdown, image→ImageFrame, reasoning→muted block), `chat-messages`
+(the `MessageScroller` transcript container — wrap every row in a
+`MessageScrollerItem`, `scrollAnchor` on user turns), `image-frame` (in-column,
+NOT full-bleed), `empty-state`, `index` barrel.
 
 **BYOK core** — `src/lib/byok.ts` (sessionStorage + `useByokKey` + `PROVIDER_KEY_HEADER`),
 `src/lib/secret.ts` (`redactSecret`), `src/components/key-gate.tsx` (masked input,

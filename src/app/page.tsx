@@ -16,7 +16,11 @@ import {
 import { KeyGate } from "@/components/key-gate";
 import { Panel, PanelGuide } from "@/components/panels/shared";
 import { Shell } from "@/components/shell/shell";
+import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Button } from "@/components/ui/button";
+import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
+import { MessageScrollerItem } from "@/components/ui/message-scroller";
+import { Spinner } from "@/components/ui/spinner";
 import { PROVIDER_KEY_HEADER, readKey, useByokKey } from "@/lib/byok";
 import { DEFAULT_MODEL_ID, providerOf } from "@/lib/models";
 
@@ -133,47 +137,60 @@ export default function Home() {
 					</button>
 				)}
 
-				{/* Conversation — ChatMessages owns the scroll container, auto-scroll, and
-				    the scroll-to-bottom button. Messages pass through as children. */}
+				{/* Conversation — ChatMessages owns the scroll container (MessageScroller:
+				    follow-output, turn anchoring, scroll-to-latest). Every direct child is a
+				    MessageScrollerItem; user turns are the scroll anchors. */}
 				<ChatMessages>
 					{messages.length === 0 ? (
-						<EmptyState
-							icon={ArtificialIntelligence03Icon}
-							title="Ask anything"
-							subtitle={
-								hasKey
-									? "Chat with text, or ask for an image."
-									: "Set your key in the panel to begin."
-							}
-						/>
+						<MessageScrollerItem className="flex-1">
+							<EmptyState
+								icon={ArtificialIntelligence03Icon}
+								title="Ask anything"
+								subtitle={
+									hasKey
+										? "Chat with text, or ask for an image."
+										: "Set your key in the panel to begin."
+								}
+							/>
+						</MessageScrollerItem>
 					) : (
-						messages.map((message, index) =>
-							message.role === "user" ? (
-								<UserMessage key={message.id} message={message} />
-							) : (
-								<AssistantMessage
-									key={message.id}
-									message={message}
-									isStreaming={status === "streaming" && index === messages.length - 1}
-								/>
-							),
-						)
+						messages.map((message, index) => (
+							<MessageScrollerItem
+								key={message.id}
+								messageId={message.id}
+								scrollAnchor={message.role === "user"}
+							>
+								{message.role === "user" ? (
+									<UserMessage message={message} />
+								) : (
+									<AssistantMessage
+										message={message}
+										isStreaming={status === "streaming" && index === messages.length - 1}
+									/>
+								)}
+							</MessageScrollerItem>
+						))
 					)}
 
 					{status === "submitted" && (
-						<div className="text-muted-foreground/50 flex items-center gap-2 text-[13px]">
-							<span className="size-1.5 animate-pulse rounded-full bg-current" />
-							Working…
-						</div>
+						<MessageScrollerItem>
+							<Marker role="status">
+								<MarkerIcon>
+									<Spinner className="size-3.5" />
+								</MarkerIcon>
+								<MarkerContent>Working…</MarkerContent>
+							</Marker>
+						</MessageScrollerItem>
 					)}
 
 					{error && (
-						<div
-							data-testid="chat-error"
-							className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-500"
-						>
-							{error.message}
-						</div>
+						<MessageScrollerItem>
+							<Bubble variant="destructive">
+								<BubbleContent data-testid="chat-error" className="text-xs">
+									{error.message}
+								</BubbleContent>
+							</Bubble>
+						</MessageScrollerItem>
 					)}
 				</ChatMessages>
 
