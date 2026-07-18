@@ -36,9 +36,9 @@ the install; start at README.md). Never write eve code from memory.
 ## THE ZERO-COST CONTRACT (hard rules)
 
 1. **We never pay for inference.** No author key, no author-hosted live
-   playground. The README leads with the one-click **Deploy** button and a
-   recorded **GIF** of the agent working; whoever deploys, pays (their gateway,
-   via OIDC — no keys to configure).
+   playground. The README leads with the one-click **Deploy** button; whoever
+   deploys, pays (their gateway, via OIDC — no keys to configure). No demo GIF
+   is required — `demo_image` stays false; never fake a demo asset.
 2. **Schedules bill deployed copies** (they become Vercel Crons). Ship at most
    one conservative schedule (`weekly-digest` is the pattern, weekly + loud
    warning) and delete it when a project doesn't need one.
@@ -153,5 +153,5 @@ export default withEve(nextConfig, {
 ## README language for generated repos
 
 Lead with: **"Deploy your own copy — it runs on YOUR Vercel account"** (Deploy
-button + `vercel deploy`), a GIF of the agent working, then the capability
-list. Never publish a URL that lets strangers spend our gateway.
+button + `vercel deploy`), then the capability list. Never publish a URL that
+lets strangers spend our gateway.
