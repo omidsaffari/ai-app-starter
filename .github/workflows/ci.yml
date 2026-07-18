@@ -67,10 +67,16 @@ jobs:
           fi
           grep -q 'assets/og.png' README.md || { echo "::error::README.md must display assets/og.png"; exit 1; }
 
-  # Template-only: prove the eve pack applies and builds. Zero model calls —
-  # eve build / next build / the mount-smoke spec are all free.
-  pack-eve-smoke:
+  # Template-only: prove each pack applies and builds from a clean checkout.
+  # Zero model calls — platform builds / next build / the mount-smoke specs
+  # are all free. Add new packs to matrix.pack (see packs/README.md).
+  pack-smoke:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        pack: [eve, claude]
+    name: pack-${{ matrix.pack }}-smoke
     steps:
       - uses: actions/checkout@v5
 
@@ -94,15 +100,15 @@ jobs:
         with:
           node-version: 24
 
-      - name: Apply eve pack
+      - name: Apply ${{ matrix.pack }} pack
         if: steps.scaffold.outputs.is_template == 'true'
         run: |
           bun install --frozen-lockfile
-          bun scripts/apply-pack.ts eve
+          bun scripts/apply-pack.ts ${{ matrix.pack }}
           bun install
 
       - name: eve build
-        if: steps.scaffold.outputs.is_template == 'true'
+        if: steps.scaffold.outputs.is_template == 'true' && matrix.pack == 'eve'
         run: bun x eve build
 
       - name: Typecheck + build

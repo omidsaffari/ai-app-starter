@@ -12,8 +12,8 @@ key. Every future demo (~100 planned) clones this and swaps two files.
 
 ## Platform packs — pick ONE before anything else
 
-`packs/` holds one self-contained backend pack per platform (today: `eve`;
-coming: `claude`, `openai`, `gemini`, …). The FIRST step of every project
+`packs/` holds one self-contained backend pack per platform (today: `eve`,
+`claude`; coming: `openai`, `gemini`, …). The FIRST step of every project
 build is choosing the project's platform and applying its pack:
 
 ```

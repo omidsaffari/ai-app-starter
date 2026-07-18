@@ -1,0 +1,29 @@
+{
+	"name": "claude",
+	"description": "Server-side agent on Claude Managed Agents — hosted sessions with a sandboxed toolset, human approvals, custom tools, MCP, skills, memory, and rubric-graded outcomes — behind the Labs chat surface.",
+	"remove": [
+		"src/app/api/run",
+		"src/lib/byok.ts",
+		"src/lib/secret.ts",
+		"src/lib/capability.ts",
+		"src/lib/capability-types.ts",
+		"src/lib/models.ts",
+		"src/lib/create-model.ts",
+		"src/components/key-gate.tsx",
+		"src/components/ai/model-selector.tsx",
+		"tests/byok.spec.ts"
+	],
+	"dependencies": {
+		"add": {
+			"@anthropic-ai/sdk": "0.112.3"
+		},
+		"remove": ["@ai-sdk/anthropic", "@ai-sdk/google", "@ai-sdk/openai", "@ai-sdk/react", "ai"]
+	},
+	"packageJson": {
+		"scripts": {
+			"agent:setup": "bun scripts/agent-setup.ts",
+			"agent:smoke": "bun scripts/agent-smoke.ts"
+		}
+	},
+	"postNotes": "Next: bun install · put ANTHROPIC_API_KEY in .env.local · `bun run agent:setup` creates the agent, environment, and memory store, uploads the skill, and prints the IDs to add to .env.local · bun dev. Managed Agents is BETA (managed-agents-2026-04-01, pinned via the SDK) — the living reference is https://platform.claude.com/docs/en/managed-agents/overview; verify model ids and event shapes there before writing new agent code."
+}
